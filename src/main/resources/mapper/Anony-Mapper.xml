@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatis.mapper.AnonyMapper">
+
+
+<sql id = "search">
+        <if test="searchKeyword != null and searchKeyword != ''">
+                <choose> 
+                        <when test='searchCondition == "tc"'>
+                                AND (ANONY_BOARD_TITLE LIKE '%' || #{searchKeyword} || '%'
+                                        OR ANONY_BOARD_CONTENT LIKE '%' || #{searchKeyword} || '%'
+                                )
+                        </when>
+
+                        <when test='searchCondition == "t"'>
+                                AND ANONY_BOARD_TITLE LIKE '%' || #{searchKeyword} || '%'
+                        </when>
+
+                        <when test='searchCondition == "c"'>
+                                AND ANONY_BOARD_CONTENT LIKE '%' || #{searchKeyword} || '%'
+                        </when> 
+                </choose>
+        </if>
+</sql>
+
+<select id = "selectAnonyList" parameterType = "anonyVO" resultType = "anonyVO">
+
+			
+	select A2.*
+	from(
+		select A1.*
+		from (
+			select
+				rownum as seq, A.*
+			from
+				(SELECT
+					anony_Board_Id,
+					anony_Board_Title,
+					anony_Board_Content,
+					anony_Board_ReadCnt,
+					anony_Board_Create_Dt,
+					anony_Board_Update_Dt
+				FROM
+				    anony_board
+				WHERE 1=1
+			    <include refid="search" />
+			    ORDER BY anony_Board_Create_Dt DESC
+			   ) A
+			) A1
+		where seq <![CDATA[ > ]]> #{firstIndex}
+		) A2
+	where rownum <![CDATA[ <= ]]> #{recordCountPerPage}
+
+</select>
+
+
+<update id = "updateAnonyReply" parameterType="anonyReply">
+	UPDATE ANONY_REPLY
+	SET REPLY_CONTENT = #{reply_Content}, REPLY_UPDATE_DT = current_date
+	WHERE REPLY_ID = #{reply_Id}
+</update>
+
+<update id = "deleteAnonyReply">
+	DELETE FROM ANONY_REPLY WHERE REPLY_ID = #{reply_Id}
+</update>
+
+
+<select id = "selectReplyCount" parameterType="int" resultType="int">
+	select count(*)
+	from anony_reply
+	where anony_board_id =  #{anony_board_id}
+
+
+</select>
+
+<insert id = "insertAnonyReply" parameterType="anonyReply">
+	INSERT INTO ANONY_REPLY(REPLY_CONTENT, REPLY_CREATE_DT, REPLY_UPDATE_DT, REPLY_ID, ANONY_BOARD_ID)
+	VALUES (#{reply_Content}, current_date, current_date, reply_Id.nextval,#{anony_Board_Id})
+</insert>
+
+
+
+
+
+<select id= "selectAnonyListTotalCount" parameterType = "anonyVO" resultType = "int">
+SELECT COUNT(*)
+FROM ANONY_BOARD
+WHERE  1=1
+<include refid = "search"/>
+
+</select>
+
+
+
+<select id = "selectReplyPaging" parameterType = "anonyVO" resultType = "anonyReply">
+
+		select A2.*
+		from(
+				select A1.*
+				from (
+						 select
+							 rownum as seq, A.*
+						 from
+							 (SELECT
+								  REPLY_ID,
+								  REPLY_CONTENT,
+								  REPLY_CREATE_DT,
+								  REPLY_UPDATE_DT,
+								  ANONY_BOARD_ID
+							  FROM
+								  anony_reply
+							  WHERE 1=1 and
+							      ANONY_BOARD_ID = #{anony_Board_Id}
+							  ORDER BY REPLY_CREATE_DT DESC
+							 ) A
+					 ) A1
+				where seq <![CDATA[ > ]]> #{firstIndex}
+			) A2
+		where rownum <![CDATA[ <= ]]> #{recordCountPerPage}
+
+</select>
+
+
+<select id = "selectAnonyReplyList" parameterType = "anonyVO" resultType = "anonyReply">
+	SELECT REPLY_CONTENT, REPLY_CREATE_DT, REPLY_UPDATE_DT, REPLY_ID, ANONY_BOARD_ID
+
+	FROM ANONY_REPLY
+
+	WHERE ANONY_BOARD_ID = #{anony_Board_Id}
+
+	ORDER BY REPLY_CREATE_DT
+ 
+</select>
+
+
+<insert id ="insertAnony" parameterType="anonyVO">
+INSERT INTO ANONY_BOARD(ANONY_BOARD_ID, ANONY_BOARD_TITLE, ANONY_BOARD_CONTENT, ANONY_BOARD_READCNT, ANONY_BOARD_CREATE_DT, ANONY_BOARD_UPDATE_DT) VALUES
+(anony_board_seq.nextval, #{anony_Board_Title}, #{anony_Board_Content}, 0, current_date,   current_date)
+</insert>
+
+<update id="updateAnony" parameterType="anonyVO">
+    UPDATE ANONY_BOARD 
+    SET ANONY_BOARD_TITLE = #{anony_Board_Title}, 
+        ANONY_BOARD_CONTENT = #{anony_Board_Content}, 
+        ANONY_BOARD_UPDATE_DT = current_date
+    WHERE ANONY_BOARD_ID = #{anony_Board_Id}
+</update>
+
+<delete id = "deleteAnony" parameterType = "anonyVO">
+DELETE FROM ANONY_BOARD WHERE ANONY_BOARD_ID = #{anony_Board_Id}
+</delete>
+
+<select id="getPostTime" parameterType="int" resultType="Date">
+	SELECT  ANONY_BOARD_CREATE_DT
+
+	FROM ANONY_BOARD
+
+	WHERE ANONY_BOARD_ID = #{anony_Board_Create_Dt}
+</select>
+
+
+<select id = "selectAnonyById" parameterType = "int" resultType = "anonyVO">
+        SELECT 
+			ANONY_BOARD_ID, 
+			 ANONY_BOARD_TITLE, 
+			 ANONY_BOARD_CONTENT, 
+			 ANONY_BOARD_READCNT, 
+			 ANONY_BOARD_CREATE_DT,
+			 ANONY_BOARD_UPDATE_DT
+
+        FROM ANONY_BOARD
+        WHERE ANONY_BOARD_ID = #{anony_Board_Id}
+</select>
+
+<update id="increaseAnonyReadcnt" parameterType="anonyVO">
+	UPDATE ANONY_BOARD
+        SET
+         anony_Board_ReadCnt =  anony_Board_ReadCnt+1
+	WHERE
+	    anony_Board_Id = #{anony_Board_Id}
+</update>
+
+
+
+
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatis.mapper.TreeViewMapper">
+
+<!--    treeview에 들어갈 부서 select-->
+    <select id="selectSearchOrganization" parameterType="OrganizationCommand" resultType="OrganizationCommand">
+        select dept_id deptId,
+             dept_name deptName,
+             dept_sup_id deptSupId,
+             dept_leader_id deptLeaderId,
+             level
+
+        from dept
+        start with DEPT_SUP_ID = 'd000'
+        connect by prior dept_id = dept_sup_id
+        order by dept_id
+    </select>
+
+<!--    treeview에 들어갈 사원 select -->
+    <select id="selectSearchEmp" parameterType="OrganizationCommand" resultType="OrganizationCommand">
+        select a.emp_id           deptId,
+               a.emp_name         deptName,
+               a.dept_id          deptSupId,
+               b.code_name          position,
+               c.attend_st_name     empState
+        from emp a
+                 left outer join attend_st c
+                                 on c.attend_st_id=a.attend_st_id
+           , code b
+        where b.code_group_id = 'G01'
+          and a.code_id = b.code_id
+        order   by b.code_id desc
+    </select>
+
+
+<!--    전자결재 폼에 들어갈 데이터 -->
+        <select id="selectSearchForm"  resultType="FormVO">
+            select form_id  ,
+                   form_name   ,
+                   form_sup_id   ,
+                   level
+
+            from approval_form
+
+            start with form_sup_id IS NULL
+
+            connect by prior  form_id = form_sup_id
+        </select>
+
+
+    <!--   프로젝트 리스트 폼 -->
+    <select id="selectSearchProjectOrg"  resultType="ProjectOrgCommand">
+        SELECT
+            PROJECT_ID,
+            PROJECT_TITLE
+        FROM
+            PROJECT
+        where PROJECT_ST = 1
+    </select>
+
+
+<!--    <select id="selectDutiesByProjectId" parameterType="ProjectOrgCommand" resultType="ProjectOrgCommand">-->
+<!--    SELECT-->
+<!--    DUTY_BOARD_ID,-->
+<!--    DUTY_BOARD_TITLE-->
+<!--    FROM-->
+<!--    DUTY-->
+<!--    WHERE-->
+<!--    PROJECT_ID = #{project_Id}-->
+<!--    </select>-->
+
+    <!-- 로그인 한 사원이 작성자, 수신자, 참조자 인 경우의 업무만 셀렉 -->
+    <select id="selectDutiesByProjectId" parameterType="ProjectOrgCommand" resultType="ProjectOrgCommand">
+        SELECT DISTINCT
+            A.DUTY_BOARD_ID,
+            A.DUTY_BOARD_TITLE
+        FROM
+            DUTY A
+        WHERE
+            A.PROJECT_ID = #{project_Id}
+          AND (
+            A.EMP_WRITER_ID = #{emp_Id}
+                OR A.DUTY_BOARD_ID IN (SELECT DUTY_BOARD_ID FROM DUTY_ENFORCER WHERE EMP_ID = #{emp_Id})
+                OR A.DUTY_BOARD_ID IN (SELECT DUTY_BOARD_ID FROM DUTY_RECEPTION WHERE EMP_ID = #{emp_Id})
+            )
+    </select>
+
+
+</mapper>

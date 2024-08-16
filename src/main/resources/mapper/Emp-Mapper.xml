@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatis.mapper.EmpMapper">
+
+
+
+
+
+
+
+<select id="selectEmpById" parameterType="String" resultType="EmpVO">
+	SELECT   A.EMP_ID					
+			,A.EMP_SUP_ID				
+			,A.EMP_NAME				
+			,A.EMP_PWD				 
+			,NVL(A.EMP_HP,'없음')
+			,A.EMP_SIGN				
+			,A.EMP_PICTURE			
+			,A.EMP_ST
+	     	,A.EMP_REGNO
+	     	,A.EMP_REGNO2
+	     	,A.EMP_SUP_ID
+			,A.EMP_HP
+			,A.EMP_EMAIL				
+			,A.EMP_ADD1	
+            ,A.EMP_ADD2
+	     	,A.EMP_ZIPCODE
+            ,A.ATTEND_ST_ID
+			,A.DEPT_ID
+			,A.EMP_CREATE_DT
+			,A.EMP_UPDATE_DT
+			,NVL(A.EMP_EMAIL,'없음') 
+			,A.AUTH_ID
+			,A.CODE_ID
+            ,B.ATTEND_ST_NAME
+						<!-- 출근상태(지각..etc) -->
+            ,A.EMP_UPDATE_YN
+						<!-- 상태수정일 -->
+            ,C.DEPT_NAME
+						<!-- 부서이름 -->
+            ,D.CODE_NAME 
+						<!-- 코드 이름==부서이름-->
+
+							<!-- 부서이름출력 ((개인)팀id=부서(id)) 
+								AND 사원정보까지 같으면(empId)는 객체로 넘겨받아야함
+								부서와 팀 구분❌ -> DEPT_TEAM_YN : 부서 / 팀 구분 처리
+								사원에서 등록 할 때, 팀/부서 나눠서 저장
+
+        -->
+		,NVL(E.AUTH_NAME,'없음')
+		,A.EMP_AUTHKEY
+		FROM EMP A, ATTEND_ST B, DEPT C, CODE D, AUTH E
+		WHERE A.ATTEND_ST_ID = B.ATTEND_ST_ID(+)
+		<!-- 사원의 상태코드(fk) = 출근 상태코드(pk)
+                   기준 테이블(emp)의 ATTENS_ST_ID가 대상 테이블(TB_ATTEND_ST)에 존재 할 경우
+                   B.ATTEND_ST_NAME(컬럼) 가져오고 없으면 NULL로 조회된다.
+                   ->사원의 출근상태를 조회하고 싶어서 (+) 사용
+               -->
+		AND A.DEPT_ID = C.DEPT_ID
+		AND A.CODE_ID = D.CODE_ID
+		<!-- 사원의 직급 코드(FK) = 코드의 코드ID -->
+		AND A.AUTH_ID = E.AUTH_ID(+)
+		<!-- AUTH_ID(+)사용 사원에는 해당 컬럼없어도 출력
+       -->
+		AND A.EMP_ST IN (1, 4)
+		AND EMP_ID = #{emp_Id}
+	</select>
+
+	<select id = "attend_time" resultType="String" parameterType="map">
+		select TO_CHAR(history_attend_time, 'YYYY-MM-DD HH24:MI:SS') from attend_history where emp_id = #{emp} AND TO_CHAR(history_attend_time, 'YYYY-MM-DD') = #{attendStartTime}
+	</select>
+
+	<select id = "leaving_time" resultType="String" parameterType="map">
+		select TO_CHAR(history_leaving_time, 'YYYY-MM-DD HH24:MI:SS') from attend_history where emp_id = #{emp} AND TO_CHAR(history_leaving_time, 'YYYY-MM-DD') = #{attendStartTime}
+	</select>
+
+	<select id = "findPwCheck" resultType="int">
+		SELECT COUNT(*) FROM EMP WHERE EMP_EMAIL = #{emp_Email} and EMP_ID = #{emp_Id}
+	</select>
+
+	<update id ="findPw">
+		UPDATE EMP SET EMP_PWD = #{emp_Pwd} where EMP_EMAIL = #{emp_Email} and EMP_ID = #{emp_Id}
+	</update>
+
+<select id = "findIdCheck" parameterType="String" resultType="int">
+	SELECT COUNT(*) FROM EMP WHERE EMP_EMAIL = #{emp_Email}
+</select>
+
+
+<select id = "findId" parameterType="EmpVO" resultType="EmpVO">
+	SELECT * FROM EMP WHERE EMP_EMAIL = #{emp_Email} and EMP_NAME = #{emp_Name}
+</select>
+
+
+<select id = "selectOfficialById" parameterType="string" resultType="string">
+	select
+
+		c.code_name
+
+	from emp e, code c
+
+	where e.emp_id =#{emp_Id} and e.code_id = c.code_id(+)
+</select>
+
+<select id ="selectDeptNameById" parameterType="string" resultType="string">
+	select d.dept_name
+
+	from emp e, dept d
+
+	where e.emp_id = #{emp_Id}  and e.dept_id = d.dept_id(+)
+
+</select>
+
+
+<select id = "selectGraphEmp" parameterType="map" resultType="EmpVO">
+
+	SELECT  EMP_CREATE_DT,EMP_ID,COUNT(DISTINCT EMP_ID) AS CNT, b.code_name
+
+	FROM (
+			 SELECT *
+			 FROM EMP
+			 WHERE EMP_CREATE_DT <![CDATA[>=]]> #{startDt} AND EMP_CREATE_DT <![CDATA[<=]]> #{endDt}
+
+
+		 )A , code b
+
+	where a.code_id = b.code_id(+)
+
+
+	GROUP BY EMP_CREATE_DT , EMP_ID, b.code_name
+
+	ORDER BY EMP_CREATE_DT DESC
+
+
+
+</select>
+
+
+
+<update id="updateEmpMyPage" parameterType="EmpVO">
+ UPDATE EMP
+    SET EMP_HP = #{emp_Hp}
+       ,EMP_EMAIL = #{emp_Email}
+       ,EMP_ADD1 = #{emp_Add1}
+       ,EMP_ADD2 = #{emp_Add2}
+       ,EMP_ZIPCODE = #{emp_ZipCode}
+       ,ATTEND_ST_ID = #{attend_St_Id}
+  WHERE EMP_ID = #{emp_Id}
+</update>
+
+<update id = "adminEmpUpdate" parameterType="EmpVO">
+	UPDATE EMP
+	SET EMP_HP = #{emp_Hp}
+	  ,EMP_EMAIL = #{emp_Email}
+	  ,EMP_PWD = #{emp_Pwd}
+	  ,EMP_NAME = #{emp_Name}
+	  ,EMP_REGNO = #{emp_Regno}
+	  ,EMP_REGNO2 = #{emp_Regno2}
+	  ,EMP_SUP_ID = #{emp_Sup_Id}
+	  ,EMP_ADD1 = #{emp_Add1}
+	  ,EMP_ADD2 = #{emp_Add2}
+	  ,EMP_ZIPCODE = #{emp_ZipCode}
+	  ,ATTEND_ST_ID = #{attend_St_Id}
+	  ,DEPT_ID = #{dept_Id}
+	  ,CODE_ID = #{code_Id}
+	  ,AUTH_ID = #{auth_Id}
+	  ,EMP_ST = #{emp_St}
+	WHERE EMP_ID = #{emp_Id}
+</update>
+
+	<update id = "updateSign" parameterType="EmpVO">
+		UPDATE EMP SET EMP_SIGN = #{emp_Sign} where EMP_ID = #{emp_Id}
+
+	</update>
+
+	<select id = "idCnt" parameterType = "EmpVO" resultType = "int">
+<![CDATA[
+		SELECT COUNT(*) FROM EMP WHERE EMP_EMAIL = #{emp_Email}
+		]]>
+</select>
+
+<select id = "empIdSquence" resultType="String" >
+	SELECT LPAD(EMP_ID_SEQ.NEXTVAL,5,0) FROM DUAL
+</select>
+
+<insert id = "register" useGeneratedKeys="true" keyProperty="emp_Id">
+INSERT INTO EMP 
+(EMP_ID, EMP_NAME, EMP_PWD, EMP_REGNO,EMP_CREATE_DT ,EMP_REGNO2, EMP_HP,EMP_ST,EMP_ADD1, EMP_ADD2,EMP_ZIPCODE ,EMP_EMAIL, AUTH_ID, DEPT_ID, EMP_SUP_ID, CODE_ID, EMP_AUTHKEY)
+VALUES
+(#{emp_Id}, #{emp_Name
+},#{emp_Pwd},#{emp_Regno},sysdate,#{emp_Regno2},#{emp_Hp},#{emp_St},#{emp_Add1},#{emp_Add2},#{emp_ZipCode},#{emp_Email}, #{auth_Id},#{dept_Id}, #{emp_Sup_Id},  #{code_Id}, #{emp_authkey})
+</insert>
+
+
+	<insert id="createAuthKey">
+		insert into EMAIL_AUTH values(#{email_authkey},#{email_Emp})
+	</insert>
+
+	<update id="empAuth">
+	<![CDATA[update EMP set EMP_AUTHKEY = 1 where (select count(*) from EMAIL_AUTH where EMAIL_EMP	 = #{email_Emp}) > 0]]>
+	</update>
+
+	<select id="selectEmpList" resultType="EmpVO">
+		SELECT
+		EMP.EMP_ID
+		,EMP.EMP_SUP_ID
+		,EMP.EMP_NAME
+		,EMP.EMP_PWD
+		,EMP.AUTH_ID
+		,EMP.EMP_REGNO
+		,NVL(EMP.EMP_HP,'없음') empHp
+		,EMP.EMP_SIGN
+		,EMP.EMP_PICTURE
+		,EMP.EMP_ST
+		,EMP.EMP_ADD1
+		,EMP.EMP_ADD2
+		,EMP.EMP_ZIPCODE
+		,EMP.DEPT_ID
+		,EMP.EMP_CREATE_DT
+		,EMP.EMP_UPDATE_DT
+		,NVL(EMP.EMP_EMAIL,'없음') empEmail
+		,EMP.ATTEND_ST_ID
+		,ATTEND_ST.ATTEND_ST_NAME
+		,CODE.CODE_NAME as officialName
+		,DEPT.DEPT_NAME
+
+		FROM	EMP, ATTEND_ST, CODE, DEPT
+		WHERE   EMP.ATTEND_ST_ID = ATTEND_ST.ATTEND_ST_ID(+)
+		<!-- 사원을 기준으로 출근상태를 모두 출력 대응되는 값이 없어도 NULL값으로 표시 -->
+		AND		EMP.CODE_ID = CODE.CODE_ID
+		AND     EMP.DEPT_ID = DEPT.DEPT_ID
+		AND		EMP.EMP_ST IN (1,4)
+		ORDER BY EMP.EMP_ID DESC
+
+	</select>
+
+	<select id="selectEmpIdListByDeptId" parameterType="EmpVO" resultType="EmpVO">
+		SELECT  emp_id
+		FROM	EMP
+		WHERE	1=1
+		<if test='dept_Id != null and !"".equals(dept_Id) '> <!-- dept_id가 null이 아니고 그 값이 빈 문자열이 아닐경우에 참-->
+			AND		dept_id = #{dept_Id}
+		</if>
+
+	</select>
+
+<select id = "selectByPwd" parameterType="EmpVO" resultType="int">
+SELECT COUNT(EMP_ID)
+FROM EMP
+WHERE EMP_ID = #{emp_Id} AND EMP_PWD = #{emp_Pwd}
+
+</select>
+
+<update id = "modifyEmpPwd" parameterType="EmpVO">
+	UPDATE EMP SET EMP_PWD =#{emp_Pwd},EMP_UPDATE_YN = #{emp_Update_Yn} where EMP_ID = #{emp_Id}
+</update>
+
+<update id = "registerDashBoard" parameterType="string">
+	INSERT INTO DASHBOARD(
+		EMP_ID,
+		DASHBOARD_DUTY,
+		DASHBOARD_ISSUE,
+		DASHBOARD_PROJECT,
+		DASHBOARD_APPROVAL,
+		DASHBOARD_RESERVATION,
+		DASHBOARD_BOARD,
+		DASHBOARD_WEATHER
+	)
+	VALUES(
+			  #{emp_Id},
+			  1,
+			  1,
+			  1,
+			  1,
+			  1,
+			  1,
+			  1
+		  )
+
+</update>
+
+
+
+<select id = "selectEmpPagingList" resultType="EmpVO" parameterType="EmpVO">
+
+SELECT EMP_ID,
+       EMP_NAME,
+       EMP_HP,
+       DEPT_ID,
+       EMP_EMAIL,
+       D3.DEPT_NAME,
+       D3.CODE_NAME,
+       D3.AUTH_ID,
+       D3.AUTH_NAME,
+       D3.ATTEND_ST_NAME
+FROM(SELECT D2.*
+
+		FROM(SELECT ROWNUM as SEQ , D1.*
+
+			 FROM(SELECT
+					  ROW_NUMBER() OVER (ORDER BY A.EMP_ID),
+						A.EMP_ID,
+					  A.EMP_NAME,
+					  A.EMP_HP,
+					  A.EMP_EMAIL,
+					  A.DEPT_ID,
+					  C.CODE_NAME,
+					  B.DEPT_NAME,
+					  E.AUTH_ID,
+					  E.AUTH_NAME,
+					  G.ATTEND_ST_NAME
+
+				  FROM EMP A, DEPT B, CODE C, AUTH E, ATTEND_ST G
+
+				  WHERE A.DEPT_ID=B.DEPT_ID
+				    AND A.CODE_ID = C.CODE_ID
+				    AND A.AUTH_ID = E.AUTH_ID
+					AND A.ATTEND_ST_ID = G.ATTEND_ST_ID(+)
+				    AND A.EMP_ST IN (1,4)
+				  <include refid="search"/>
+				  ORDER BY A.EMP_ID DESC) D1
+			 )D2
+		WHERE <![CDATA[SEQ >= #{firstIndex}]]>
+		)D3
+	WHERE <![CDATA[ROWNUM <= #{recordCountPerPage}]]>
+	</select>
+
+	<select id = "searchLoginUser" parameterType="EmpVO"  resultType="EmpVO">
+		SELECT
+			A.EMP_ID,
+			A.EMP_NAME,
+			A.EMP_PICTURE,
+			A.EMP_ST,
+			A.EMP_HP,
+			B.AUTH_NAME,
+			C.DEPT_NAME,
+			D.CODE_NAME,
+			E.ATTEND_ST_NAME
+
+		FROM EMP A, AUTH B, DEPT  C, CODE D, ATTEND_ST E
+
+		WHERE A.AUTH_ID  = B.AUTH_ID(+) AND A.DEPT_ID = C.DEPT_ID AND A.CODE_ID = D.CODE_ID
+
+		  AND A.ATTEND_ST_ID = E.ATTEND_ST_ID(+)
+
+		<if test="emp_Name != null">
+			AND A.EMP_NAME LIKE '%' || #{emp_Name} || '%'
+		</if>
+	</select>
+
+	<select id = "selectEmpCount" parameterType="EmpVO" resultType="int">
+		SELECT COUNT(A.EMP_ID)
+		FROM EMP A
+	</select>
+
+
+	<sql id = "search">
+		<if test = "searchKeyword != null and searchKeyword != ''">
+			<choose>
+				<when test = 'searchCondition == "np"'>
+					AND (A.EMP_NAME LIKE '%' || #{searchKeyword} || '%' OR A.EMP_HP LIKE '%' || #{searchKeyword} || '%')
+				</when>
+				<when test = 'searchCondition == "n"'>
+					AND A.EMP_NAME LIKE '%' || #{searchKeyword} || '%'
+				</when>
+				<when test = 'searchCondition == "p"'>
+					AND A.EMP_HP LIKE '%' || #{searchKeyword} || '%'
+				</when>
+			</choose>
+		</if>
+
+		<if test = "search_code != null and search_code != ''">
+			<choose>
+				<when test = 'search_code == "c01"'>
+					AND A.CODE_ID = 'c01'
+				</when>
+
+				<when test = 'search_code =="c02"'>
+					AND A.CODE_ID = 'c02'
+				</when>
+
+				<when test = 'search_code == "c03"'>
+					AND A.CODE_ID = 'c03'
+				</when>
+
+				<when test = 'search_code =="c04"'>
+					AND A.CODE_ID = 'c04'
+				</when>
+
+				<when test = 'search_code =="c05"'>
+					AND A.CODE_ID = 'c05'
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+</mapper>

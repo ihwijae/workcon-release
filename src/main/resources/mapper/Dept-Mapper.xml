@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatis.mapper.DeptMapper">
+
+
+
+    <select id="selectDeptListByTeamYn" resultType="DeptVO" parameterType="DeptVO">
+SELECT
+dept_id
+,dept_sup_id
+,dept_name
+,dept_create_dt
+,dept_update_dt
+,dept_st
+,dept_hp
+,dept_leader_id
+,dept_team_yn
+
+FROM
+DEPT
+WHERE   dept_team_yn = #{dept_Team_Yn}
+AND     dept_st = 0
+    <!-- 여기서 팀이냐 부서냐, 이미 정해진 dept_team_st로 정해짐  -->
+
+
+    <if test='emp_Id != null and !"".equals(emp_Id) and dept_Team_Yn ==0'>
+    AND     dept_id IN (SELECT dept_id as deptId1
+    FROM	 EMP
+    WHERE	 emp_id = #{emp_Id})
+    <!-- 사용자가 속한 부서 정보만 조회 -->
+</if>
+<if test='emp_Id != null and !"".equals(emp_Id) and dept_Team_Yn ==1'>
+    AND     dept_id IN (SELECT dept_id as deptId1
+    FROM	 EMP
+    WHERE	 emp_id = #{emp_Id})
+    <!-- 사용자가 속한 팀 정보만 조회  -->
+</if>
+-- ORDER BY dept_id
+</select>
+
+    <select id ="selectTeamList" parameterType="DeptVO" resultType="DeptVO">
+        select a.dept_name, a.DEPT_ID, a.DEPT_SUP_ID
+        from dept a
+                 inner join dept b on a.dept_sup_id = b.dept_sup_id
+                 INNER JOIN emp e ON b.dept_id = e.dept_id
+        where e.emp_id = #{emp_Id}
+    </select>
+
+    <select id ="selectDeptList" parameterType="DeptVO" resultType="DeptVO">
+        select c.dept_name, c.DEPT_ID, c.DEPT_SUP_ID
+        from dept c
+                 inner join dept d on c.DEPT_ID = d.DEPT_SUP_ID
+                 inner join emp e on d.DEPT_ID = e.DEPT_ID
+        where e.emp_id = #{emp_Id}
+    </select>
+
+<select id = "checkName" parameterType="String" resultType="int">
+    SELECT COUNT(DEPT_NAME)
+    FROM DEPT
+    WHERE DEPT_NAME = #{dept_Name}
+</select>
+
+
+
+<insert id="insertDept" parameterType="DeptVO">
+    <selectKey resultType="String" keyProperty="dept_Id" order="BEFORE">
+        SELECT   'd' || LPAD(DEPT_ID_SEQ.NEXTVAL,3,0) FROM DUAL
+    </selectKey>
+        INSERT INTO DEPT
+        (DEPT_ID,
+         DEPT_NAME,
+         DEPT_CREATE_DT,
+         <if test = 'dept_Sup_Id != null and !"".equals(dept_Sup_Id)'>
+         DEPT_SUP_ID,
+         </if>
+         <if test = 'dept_Hp !=null and !"".equals(dept_Hp)'>
+         DEPT_HP,
+         </if>
+         <if test = 'dept_Leader_Id !=null and !"".equals(dept_Leader_Id)'>
+         DEPT_LEADER_ID,
+         </if>
+         <if test ='dept_Team_Yn != null and !"".equals(dept_Team_Yn)'>
+             dept_Team_YN
+         </if>
+        )
+        VALUES (
+        #{dept_Id}
+       ,#{dept_Name}
+       ,sysdate
+    <if test = 'dept_Sup_Id != null and !"".equals(dept_Sup_Id)'>
+        ,#{dept_Sup_Id}
+    </if>
+    <if test = 'dept_Hp !=null and !"".equals(dept_Hp)'>
+        ,#{dept_Hp}
+    </if>
+    <if test = 'dept_Leader_Id !=null and !"".equals(dept_Leader_Id)'>
+        ,#{dept_Leader_Id}
+    </if>
+    <if test ='dept_Team_Yn != null and !"".equals(dept_Team_Yn)'>
+        ,#{dept_Team_Yn}
+    </if>
+    )
+</insert>
+
+
+
+    <select id = "selectAllDeptName" resultType="DeptVO">
+        SELECT A.DEPT_ID,
+               A.DEPT_NAME,
+               A.DEPT_CREATE_DT,
+               A.DEPT_UPDATE_DT,
+               A.DEPT_ST,
+               NVL(A.DEPT_HP, '없음'),
+               NVL(A.DEPT_LEADER_ID, '없음'),
+               DECODE(A.DEPT_TEAM_YN, 1, '팀', '부서') ,
+               NVL(B.EMP_NAME, '없음')
+
+
+        FROM DEPT A, EMP B
+
+        WHERE A.DEPT_ST = 0 AND A.DEPT_LEADER_ID = B.EMP_ID(+)
+
+        ORDER BY DEPT_ID
+    </select>
+
+</mapper>
