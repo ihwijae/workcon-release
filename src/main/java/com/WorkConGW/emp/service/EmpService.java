@@ -43,15 +43,36 @@ public class EmpService {
     private HomeService homeService;
     @Autowired
     private JavaMailSender mailSender;
+     @Autowired
+     private EmpDAO empDAO;
 
      @Value("${SignPath}")
      private String SignPath;
 
-    @Autowired
-    private EmpDAO empDAO;
+
+
+     public class PasswordUtils {
+
+         // 비밀번호 해시 생성
+         public static String generateHash(String plainPassword) {
+             return BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+         }
+     }
+
+
+
+
+
     public EmpVO login(String empId, String empPwd ,HttpSession session)throws SQLException, NotFoundIDException,InvalidPasswordException {
-        
+
+        logger.info(empId, empPwd);
+        logger.info(empPwd);
         EmpVO emp = empDAO.selectEmpById(empId);
+
+        String plainPassword = empPwd;
+        String hashedPassword = PasswordUtils.generateHash(plainPassword);
+
+        emp.setEmp_Pwd(hashedPassword);
 
         if(emp == null) 
         {

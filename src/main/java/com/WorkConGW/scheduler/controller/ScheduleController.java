@@ -256,6 +256,7 @@ public class ScheduleController extends BaseController {
 
         //부서장인지 확인 필요함(팀 일정을 전부 조회 가능해야함)
         EmpVO user = (EmpVO)session.getAttribute("loginUser");
+        log.info(user.getCode_Id());
         if(user.getCode_Id().equals("c01")) {
             log.info(schedule.getSearchType());
             log.info(schedule.getSearchCondition());

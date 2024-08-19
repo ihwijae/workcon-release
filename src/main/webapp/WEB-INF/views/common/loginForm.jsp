@@ -304,7 +304,7 @@ body, input {
             </div>
             <div class="input-field">
               <i class="fa-solid fa-shield-halved"></i>
-              <input id = "emp_Pwd"name="emp_Pwd" type="password" placeholder="비밀번호" required />
+              <input id = "emp_Pwd" name="emp_Pwd" type="password" placeholder="비밀번호" required />
             </div>
             <div class="login-info">
               <div class="find-idpwd">

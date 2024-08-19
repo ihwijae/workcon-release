@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.WorkConGW.emp.dto.EmpVO;
 import com.WorkConGW.emp.service.EmpService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional
 public class EmpDAO {
 
     @Autowired
@@ -27,16 +29,20 @@ public class EmpDAO {
     Logger logger = LoggerFactory.getLogger(EmpService.class);
 
 
-    public EmpVO selectEmpById(String emp) {
-        List<EmpVO> empvo = sqlSessionTemplate.selectList("selectEmpById", emp);
+    public EmpVO selectEmpById(String empId) {
+        logger.info(empId);
+        List<EmpVO> empvo = sqlSessionTemplate.selectList("selectEmpById", empId);
+        logger.info(empvo.toString());
 
         Map<String,Object> pmap = new HashMap<>();
         String attendStartTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         pmap.put("attendStartTime", attendStartTime);
-        pmap.put("emp", emp);
+        pmap.put("emp", empId);
         String history_attend_time = sqlSessionTemplate.selectOne("attend_time", pmap);
         String history_leaving_time = sqlSessionTemplate.selectOne("leaving_time", pmap);
         logger.info(history_attend_time);
+
+
         if(empvo != null && !empvo.isEmpty()) {
             EmpVO empvo2 = empvo.get(0);
             empvo2.setHistory_Attend_Time(history_attend_time);

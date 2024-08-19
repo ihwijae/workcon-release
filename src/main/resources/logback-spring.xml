@@ -23,5 +23,23 @@
 <!--    <root level="DEBUG">-->
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
-    </root> 
+    </root>
+
+
+
+
+<!--    Mybatis 로그-->
+<!--    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    <logger name="org.apache.ibatis" level="DEBUG"/>-->
+<!--    <logger name="jdbc.sqlonly" level="DEBUG"/>-->
+<!--    <logger name="jdbc.sqltiming" level="DEBUG"/>-->
+
+<!--    <root level="DEBUG">-->
+<!--        <appender-ref ref="stdout"/>-->
+<!--    </root>-->
 </configuration>

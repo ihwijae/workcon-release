@@ -244,9 +244,12 @@ public class CommonController {
     @PostMapping("/login")
     public String login(EmpVO empVO,HttpServletRequest request,HttpServletResponse response,Model model)throws SQLException
     {
-
+        logger.info(empVO.toString());
         String url = null;
         HttpSession session = request.getSession();
+        logger.info(session.toString());
+        logger.info(empVO.getAuth_Id());
+        logger.info(empVO.getEmp_Pwd());
         try{
             empVO = empService.login(empVO.getEmp_Id(),empVO.getEmp_Pwd(),session);
             if(empVO.getEmp_Update_Yn()=="n")
@@ -255,18 +258,25 @@ public class CommonController {
             }
             logger.info(empVO.toString());
             users.put(empVO.getEmp_Id(),session); // users에서 관리하는 이유는 로그인 유저 정보를 조회하기 위해서
-            if(empVO.getEmp_authkey() == 0)
-            {
-                logger.info("여기에 들어왔습니다.");
-                model.addAttribute("Auth",empVO.getEmp_authkey());
-                return "/common/registerReady";
-            }
+
+
+//            if(empVO.getEmp_authkey() == 0)
+//            {
+//                logger.info("여기에 들어왔습니다.");
+//                model.addAttribute("Auth",empVO.getEmp_authkey());
+//                return "/common/registerReady";
+//            }
+
+            logger.info(empVO.getAuth_Id());
+
             if("u".equals(empVO.getAuth_Id()))
             {
+                logger.info("일반사용자로그인");
                 url = "redirect:/common/home";
             }
             else if("s".equals(empVO.getAuth_Id()))
             {
+                logger.info("관리자로그인");
                 url = "redirect:/admin/main";
             }
 
