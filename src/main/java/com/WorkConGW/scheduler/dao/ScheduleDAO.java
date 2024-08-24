@@ -27,6 +27,8 @@ public class ScheduleDAO {
      */
     public List<ScheduleVO> selectScheduleListByDate(ScheduleVO scheduleVO) {
         log.info("scheduleDao연결");
+        log.info(scheduleVO.getCode_Id());
+        log.info(scheduleVO.getSchedule_Writer_Id());
         return sqlSessionTemplate.selectList("selectScheduleListByDate", scheduleVO);
     }
 
@@ -41,6 +43,8 @@ public class ScheduleDAO {
         log.info(scheduleVO.getSearchType());
         log.info(scheduleVO.getSearchCondition());
         log.info(Integer.toString(scheduleVO.getSearchImportant()));
+        log.info(scheduleVO.getCode_Id());
+        log.info(scheduleVO.getSchedule_Writer_Id());
          List<ScheduleVO> schedule =  sqlSessionTemplate.selectList("selectScheduleAllList", scheduleVO);
         log.info(schedule.toString());
          return schedule;

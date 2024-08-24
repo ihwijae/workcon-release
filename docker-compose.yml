@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   springboot-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ihwijae/workcongw
     ports:
       - "8080:8080"
     restart: always
@@ -22,7 +20,8 @@ services:
     networks:
       - app-network
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+#      - /home/ec2-user/default.conf:/etc/nginx/conf.d/default.conf
+      - /Users/ihwijae/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - springboot-app
     container_name: workcongw-nginx
