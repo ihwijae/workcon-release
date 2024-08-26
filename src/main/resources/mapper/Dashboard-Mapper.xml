@@ -22,7 +22,8 @@
 
 <insert id = "insertDashboard" parameterType = "DashboardVO">
 
-        insert into dashboard values (#{emp_id},#{dashboard_duty}, #{dashboard_issue}, #{dashboard_project}, #{dashboard_approval},#{dashboard_reservation} ,#{dashboard_board})
+        insert into dashboard values
+                                  (#{emp_id},#{dashboard_duty}, #{dashboard_issue}, #{dashboard_project}, #{dashboard_approval},#{dashboard_reservation} ,#{dashboard_board})
 
 </insert>
 

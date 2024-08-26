@@ -69,7 +69,15 @@
         and a.emp_id = #{empId}
         AND ROWNUM &lt;= 2
         UNION ALL
-        select a.*,
+        select         a.meet_room_reservation_id,
+                       a.meet_room_id,
+                       a.emp_id,
+                       a.reservation_start_time,
+                       a.reservation_end_time,
+                       a.reservation_date,
+                       a.meet_room_detail,
+                       a.meet_room_reservation_st,
+                       a.meet_room_dept_id, -- 데이터 유형 일치
                b.meet_room_name,
                b.meet_room_no
         from 

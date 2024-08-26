@@ -51,7 +51,9 @@ public class HomeDAO {
     public int dashbodeUpdate(Map<String, Object> pmap) {
         logger.info("dashbodeUpdate");
         int result = 0;
+        logger.info(pmap.toString());
         result = sqlSessionTemplate.update("dashbodeUpdate", pmap);
+        logger.info(pmap.toString());
         return result;
       }
 }

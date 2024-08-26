@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -155,12 +156,19 @@ public class AdminCommonController extends CommonController {
          LocalDateTime now = LocalDateTime.now();
          LocalDateTime startDt = now.minus(1, ChronoUnit.MONTHS);
          LocalDateTime endDt = now;
-         logger.info("startDt : "+startDt.toString());
-         logger.info("endDt"+endDt.toString());
+
+
+         // LocalDateTime을 Timestamp로 변환
+         Timestamp startTimestamp = Timestamp.valueOf(startDt);
+         Timestamp endTimestamp = Timestamp.valueOf(endDt);
+
+
+         logger.info(startTimestamp.toString());
+         logger.info(endTimestamp.toString());
          List<Map<String,Object>> graphList = new ArrayList<>();
          Map<String,Object> dataMap = new HashMap<>();
-         dataMap.put("startDt",startDt);
-         dataMap.put("endDt", endDt);
+         dataMap.put("startDt",startTimestamp);
+         dataMap.put("endDt", endTimestamp);
          dataMap = empService.selectGraphEmp(dataMap);
 
          graphList.add(dataMap);

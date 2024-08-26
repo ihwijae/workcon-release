@@ -305,6 +305,7 @@ public class CommonController {
     @ResponseBody
     @PostMapping("/insertDashboard")
     public void insertDashboard(DashboardVO dashboardVO){
+        logger.info("대시보드 생성");
         homeService.insertDashboard(dashboardVO);
     }
 
@@ -554,6 +555,8 @@ public class CommonController {
         String path = "";
         logger.info(pmap.toString());
         result = homeService.dashbodeUpdate(pmap);
+        logger.info(Integer.toString(result));
+        logger.info(path);
         if (result == 1) {// 입력이 성공했을때
             path = "redirect:/common/home";
         } else {// 입력이 실패 했을때
