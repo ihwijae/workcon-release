@@ -1,4 +1,4 @@
-# 📌 WorkConGW
+# 📌 WorkConGW-Release
 >기존 4인 팀프로젝트 WorkConGW를 배포 (1인)  
 > https://workcongw.store  
 > 테스트 계정: ID: 00001 ~ 00005  
