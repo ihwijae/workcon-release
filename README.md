@@ -71,3 +71,10 @@ Docker-Compose 기술을 사용했고, Spring Boot는 개인 Docker hun에 Push 
 Docker-Compose 문법으로 여러개의 컨테이너를 관리할 수 있었다.<br>
  </blockquote>
 </details>
+
+<br>
+
+## 6. 회고
+> 기존엔 Web Server를 사용하지않고 WAS만을 사용했다.  
+> 이번 배포 프로젝트로 인해 Web Server를 왜 사용해야하는지, 앞단에 Web Server를 두어야하는 이유를 잘 알게됐다.  
+> 또한, Docker를 사용해보면서 가상 컨테이너 기술의 흥미를 느꼈고, 앞으로도 개발 환경을 구성할때 Docker를 잘 사용할 것 같다.
