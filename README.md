@@ -10,6 +10,7 @@
 - 2024.07 ~ 2024.08
 - 개인 프로젝트
 
+<br>
 
 ## 2. 사용 기술 :
 - AWS EC2
@@ -18,8 +19,12 @@
 - Nginx (Reverse Proxy)
 - DNS
 
+<br>
+
 ## 3. 배포 구조 :
 ![img_2.png](img_2.png)
+
+<br>
 
 
 ## 4. 핵심 설명 :
@@ -28,6 +33,9 @@
 - 기존에 고려하지 않던 Web Server를 백엔드 서버 앞단에 위치하여 Reverse proxy 사용
 - SSL 인증서를 발급하여 HTTPS 프로토콜 사용
 - 도메인을 구입하여 DNS 사용
+
+<br>
+
 
 ## 5. 트러블 슈팅
 <details>
