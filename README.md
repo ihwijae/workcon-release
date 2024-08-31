@@ -40,8 +40,10 @@
 ## 5. 트러블 슈팅
 <details>
  <summary>데이터 타입 문제</summary>
+  <blockquote>
 > 기존 데이터베이스에서 CHAR 타입을 사용하는 컬럼이 많았다.  
 > CHAR 타입은 고정길이 문자형이라 빈 문자열은 공백으로 채워지는 문제로 Mybatis에서 제대로 인식을 하지 못해서 VARCHAR2 타입으로 변경했다.
+  </blockquote>
 </details>
 
 <br>
