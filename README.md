@@ -62,10 +62,12 @@ CHAR 타입은 고정길이 문자형이라 빈 문자열은 공백으로 채워
 
 <details>
 <summary>Docker-Compose 문법</summary>
-> 기존 Docker를 사용하면서 Docker Image를 Pull 받고,  
-> Docker run 명령어를 통해 컨테이너를 관리 했다.  
-> 하지만 이번 프로젝트로 여러개의 컨테이너를 관리해야 했고,  
-> 일일히 Docker run 명령어를 통해 관리하기 어려웠다.  
-> Docker-Compose 기술을 사용했고, Spring Boot는 개인 Docker hun에 Push 했다.    
-> Docker-Compose 문법으로 여러개의 컨테이너를 관리할 수 있었다.  
+ <blockquote>
+기존 Docker를 사용하면서 Docker Image를 Pull 받고,<br>
+Docker run 명령어를 통해 컨테이너를 관리 했다.<br>
+하지만 이번 프로젝트로 여러개의 컨테이너를 관리해야 했고,<br>
+일일히 Docker run 명령어를 통해 관리하기 어려웠다.<br>
+Docker-Compose 기술을 사용했고, Spring Boot는 개인 Docker hun에 Push 했다.<br>
+Docker-Compose 문법으로 여러개의 컨테이너를 관리할 수 있었다.<br>
+ </blockquote>
 </details>
