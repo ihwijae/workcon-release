@@ -74,7 +74,7 @@ Docker-Compose 문법으로 여러개의 컨테이너를 관리할 수 있었다
 
 <details>
  <summary>Nginx 설정 </summary>
-  upstream backend {
+   upstream backend {
         server workcongw-app:8080; 
         # docker 를 사용하지 않는다면 localhost:3000 (웹서버 주소)
         # docker 를 사용한다면 실행중인 웹 서버 컨테이너 이름 또는
