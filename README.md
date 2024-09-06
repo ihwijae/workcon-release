@@ -74,9 +74,74 @@ Docker-Compose 문법으로 여러개의 컨테이너를 관리할 수 있었다
 
 <details>
  <summary>Nginx 설정 </summary>
-```
- asdsadsa
- ```
+  upstream backend {
+        server workcongw-app:8080; 
+        # docker 를 사용하지 않는다면 localhost:3000 (웹서버 주소)
+        # docker 를 사용한다면 실행중인 웹 서버 컨테이너 이름 또는
+        # docker 를 사용한다면 172.17.0.1
+}
+
+# http로 요청이 왔을때 서버 블록
+server { 
+    listen 80;
+    server_name workcongw.store # 도메인 이름 또는 IP
+    server_tokens off;
+
+
+
+    location /.well-known/acme-challenge/ { # HTTP를 위한 SSL 인증서 설정
+        allow all;
+        root /var/www/certbot;
+    }
+
+     location / { # http로 요청이 왔을때 https로 리다이렉트
+                return 301 https://$host$request_uri;
+        }
+}
+
+# https로 요청이 왔을떄 서버블록.
+server { 
+        listen 443 ssl;
+        server_name workcongw.store
+        server_tokens off;
+
+        ssl_certificate /etc/letsencrypt/live/workcongw.store/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/workcongw.store/privkey.pem;
+        include /etc/letsencrypt/options-ssl-nginx.conf;
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+
+        # workcongw.store 로 요청이 왔을때 로그인 폼으로 가기위한 리다이렉트 설정.
+        location = / {
+        return 301 /WorkConGW/common/loginForm;
+         }
+
+        # 모든 경로로 오는 요청을 upstream의 backend 경로로 포워딩.
+         location / {
+        proxy_pass http://backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+         }
+
+
+
+        }
+
+        # www로 오는 요청을 www가 없는 경로로 리다이렉트를 위한 설정.
+        server {
+    listen 443 ssl;
+    server_name www.workcongw.store;
+
+
+    ssl_certificate /etc/letsencrypt/live/workcongw.store/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/workcongw.store/privkey.pem;
+
+    return 301 https://workcongw.store$request_uri;
+}
+
+
 </details>
 
 <br>
