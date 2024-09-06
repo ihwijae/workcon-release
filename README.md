@@ -74,10 +74,8 @@ Docker-Compose 문법으로 여러개의 컨테이너를 관리할 수 있었다
 
 <details>
  <summary>Nginx 설정 </summary>
- <blockquote>
 ```
-asdsadasd
- </blockquote>
+ asdsadsa
 </details>
 ```
 <br>
