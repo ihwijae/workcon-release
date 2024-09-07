@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @ServletComponentScan
 @SpringBootApplication
-@ComponentScan(basePackages = "com.WorkConGW")
+//@ComponentScan(basePackages = "com.WorkConGW")
 public class WorkConGwApplication extends SpringBootServletInitializer {
 
 	@Override
